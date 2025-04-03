@@ -8,7 +8,7 @@ You can run an instance of the [Argos Simulator](https://www.argos-sim.info/) wi
 docker compose -f run_argos.yaml up -d
 ```
 
-Then you can visit [`http://localhost:6050`](http://localhost:6050) to open up vnc indside the container.
+Then you can visit [`http://localhost:6080`](http://localhost:6080) to open up vnc indside the container.
 
 Lab activities are located in `/root/Desktop`.
 You can run any argos file with:
