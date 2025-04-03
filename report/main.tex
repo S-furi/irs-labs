@@ -1,0 +1,39 @@
+\documentclass[twocolumn]{article}
+\usepackage[a4paper,margin=1in]{geometry}  % Adjust as needed
+\usepackage{graphicx}
+% \begin{figure*}
+%     \centering
+%     \includegraphics[width=\textwidth]{example-image}
+%     \caption{A figure spanning both columns.}
+%     \label{fig:example}
+% \end{figure*}
+\usepackage{lipsum}  % For placeholder text
+\usepackage{microtype}  % Better text spacing
+\usepackage{acronym}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{cleveref}
+\usepackage[inline]{enumitem}
+\usepackage[backend=bibtex,style=alphabetic]{biblatex}
+\addbibresource{references.bib}
+
+\title{
+\LARGE{\textbf{Laboratory Activities Report}}
+\\[2ex] \textit{Intelligent Robotic Systems} - A.Y. 2024/2025
+}
+\date{March 2025}
+\author{Stefano Furi - \texttt{stefano.furi@studio.unibo.it} - 0001125057}
+
+\begin{document}
+
+\maketitle
+
+\input{chapters/lab1.tex}
+\input{chapters/lab2.tex}
+\input{chapters/lab3.tex}
+\input{chapters/lab4.tex}
+
+\newpage
+\printbibliography
+
+\end{document}
