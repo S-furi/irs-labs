@@ -1,0 +1,10 @@
+services:
+  argos3-sim:
+    image: tjferrara/argos3:latest
+    container_name: argos3-sim
+    ports:
+      - 6080:80
+    volumes:
+      - /dev/shm:/dev/shm
+      - ./labs:/root/Desktop
+
