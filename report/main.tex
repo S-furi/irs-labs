@@ -1,4 +1,4 @@
-\documentclass[twocolumn]{article}
+\documentclass{article}
 \usepackage[a4paper,margin=1in]{geometry}  % Adjust as needed
 \usepackage{graphicx}
 % \begin{figure*}
@@ -16,6 +16,17 @@
 \usepackage[inline]{enumitem}
 \usepackage[backend=bibtex,style=alphabetic]{biblatex}
 \addbibresource{references.bib}
+
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrows}
+
+\tikzset{
+    > = stealth, % arrow head style
+	->, % makes the edges directed
+	node distance=3cm, % specifies the minimum distance between two nodes. Change if necessary.
+	every state/.style={thick, fill=gray!10}, % sets the properties for each ’state’ node
+	initial text=$ $, % sets the text that appears on the start arrow
+}
 
 \title{
 \LARGE{\textbf{Laboratory Activities Report}}

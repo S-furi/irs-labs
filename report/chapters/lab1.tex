@@ -1,2 +1,48 @@
 %!TEX root = ../main.tex
 \section{Lab Activity 1}
+
+First lab activity has been about phototaxis and an implementation of a
+collision avoidance behaviour with a simple random walk.
+As discussed in class, phototaxis has been more challenging because
+it has been our first approach in programming robots in a more structured
+way, and also the first time interacting with ARGoS.
+
+\subsection{Phototaxis}
+
+Having no constraints on how fast the robot has to reach the light, and
+no constraints in what the robot must do when reaching the light, designing
+phototaxis is quite straightforward. Moreover, the arena is just composed
+of its four walls, meaning that light cannot be obstructed by obstacles.
+
+Having defined the environment and the constraints, the robot is designed
+with a simple id
+
+\begin{figure}[ht]
+    \centering
+    \begin{tikzpicture}
+        \node[state, initial] (init) {init};
+        \node[state, right=of init] (search) {Search Light};
+        \node[state, above right=of search] (forward) {Move Forward};
+        \node[state, below right=of search] (turn) {Turn};
+        \node[state, right=of turn] (right) {Turn Right};
+        \node[state, right=of forward] (left) {Turn Left};
+
+        % Define transitions
+        \draw[->] (init) -- node[midway, above] {Random Velocities} (search);
+        \draw[->] (search) -- node[midway, above] {Light Directly Ahead} (forward);
+        \draw[->] (search) -- node[pos=0.3, midway, below] {Light Not Directly Ahead} (turn);
+        \draw[->] (turn) -- node[midway, below] {Angle $\geq$ 0} (right);
+        \draw[->] (turn) -- node[midway, above] {Angle $<$ 0} (left);
+
+        \draw[->] (right) .. controls +(up:2) and +(right:2) .. 
+            node[pos=0.2, right] {Adjust Velocities} (search);
+        \draw[->] (left) .. controls +(up:2) and +(right:2) .. 
+            node[pos=0.1, left] {Adjust Velocities} (search);
+        \draw[->] (forward) .. controls +(up:3) and +(up:3) .. 
+            node[pos=0.2, left] {Set Max Speed} (search);
+    \end{tikzpicture}
+    \caption{Caption of the FSM}
+    \label{fig:my_label}
+\end{figure}
+
+\subsection{Collision Avoidance with Random Walk}
