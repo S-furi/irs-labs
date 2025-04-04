@@ -37,7 +37,7 @@
   <!-- * Arena configuration * -->
   <!-- *********************** -->
   <arena size="5.2, 5.2, 1.2" center="0,0,0.5">
-    <floor id="f" source="image" path="one_spot.png" />
+    <floor id="f" source="image" path="two_spots.png" />
 
     <box id="bn" size="0.1, 5, 0.2" movable="false">
       <body position="2.5,0,0"  orientation="0,0,0" />
