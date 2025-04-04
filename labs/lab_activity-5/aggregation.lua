@@ -1,5 +1,3 @@
-local utils = require "utils"
-
 config = {
 	N_STEPS_STRAIGHT = 15,
 	N_STEPS_TURNING = 5,
@@ -8,11 +6,14 @@ config = {
 	DEFAULT_STRAIGHT_VELOCITY = 15,
 	PROX_THRESHOLD = 0.80,
 	R_B_RANGE = 30,
+	MIN_GROUND_THRESHOLD = 0.01,
 	PROBABILITIES = {
 		W = 0.1,
 		S = 0.01,
 		P_S_MAX = 0.99,
 		P_W_MIN = 0.005,
+		D_S = 0.1,
+		D_W = 0.1,
 		ALPHA = 0.1,
 		BETA = 0.05,
 	}
@@ -137,11 +138,30 @@ function notify_others(state)
 end
 
 function compute_stop_probability(n)
-	return math.min(config.PROBABILITIES.P_S_MAX, config.PROBABILITIES.S + (config.PROBABILITIES.ALPHA * n))
+	local p_g_s = 0
+	if check_on_spot() then
+		p_g_s = config.PROBABILITIES.D_S
+	end
+	return math.min(config.PROBABILITIES.P_S_MAX, config.PROBABILITIES.S + (config.PROBABILITIES.ALPHA * n) + p_g_s)
 end
 
 function compute_moving_probability(n)
-	return math.max(config.PROBABILITIES.P_W_MIN, config.PROBABILITIES.W - (config.PROBABILITIES.BETA * n))
+	local p_d_w = 0
+	if check_on_spot() then
+		p_d_w = config.PROBABILITIES.D_W
+	end
+	return math.max(config.PROBABILITIES.P_W_MIN, config.PROBABILITIES.W - (config.PROBABILITIES.BETA * n) - p_d_w)
+end
+
+function check_on_spot()
+	local spot = false
+	for i = 1, 4 do
+		if robot.motor_ground[i].value <= config.MIN_GROUND_THRESHOLD then
+			spot = true
+			break
+		end
+	end
+	return spot
 end
 
 function get_random_turning_velocities()
