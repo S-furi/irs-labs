@@ -7,15 +7,38 @@ As discussed in class, phototaxis has been more challenging because
 it has been our first approach in programming robots in a more structured
 way, and also the first time interacting with ARGoS.
 
-\subsection{Phototaxis}
+\subsection{Phototaxis}\label{ssec:phototaxis}
 
 Having no constraints on how fast the robot has to reach the light, and
 no constraints in what the robot must do when reaching the light, designing
 phototaxis is quite straightforward. Moreover, the arena is just composed
 of its four walls, meaning that light cannot be obstructed by obstacles.
 
-Having defined the environment and the constraints, the robot is designed
-with a simple id
+Having defined the environment and the constraints, the robot is designed through
+a finite state automaton as illustrated in \Cref{fig:photo-fsa}.
+
+The robot behaviour can be summarised in the following way: at each step,
+locate the sensor with the highest value, extract its angle and determine if it
+is on front, on the right or on the left. The first check sets the same
+velocity for both wheels if the sensor with the highest value is the first or
+the twenty-fourth. If this check returns false, sensor's angle is used to
+determine if it is located on the left or right; let's call the angle $\alpha$,
+we determine the direction of turn as:
+%
+\begin{equation}
+    \begin{cases}
+        \text{left}, & \text{if } \alpha \in [0, \pi] \\
+        \text{right}, & \text{if } \alpha \in [-\pi, 0) \\
+    \end{cases}
+\end{equation}
+%
+If direction is right, we decrease right wheel velocity by a constant at each
+step, until 1, while increasing left wheel velocity until max speed is reached.
+The opposite happens when the direction is left.
+
+Due to the fact that no obstacles are present in the arena, and the task is
+only to reach the nearest light, wheels' velocities are always $> 0$, making
+turn angles wider, but making it possibile to move faster.
 
 \begin{figure}[ht]
     \centering
@@ -35,14 +58,94 @@ with a simple id
         \draw[->] (turn) -- node[midway, above] {Angle $<$ 0} (left);
 
         \draw[->] (right) .. controls +(up:2) and +(right:2) .. 
-            node[pos=0.2, right] {Adjust Velocities} (search);
+            node[pos=0.2, right] {\texttt{l++}, \texttt{r--}} (search);
         \draw[->] (left) .. controls +(up:2) and +(right:2) .. 
-            node[pos=0.1, left] {Adjust Velocities} (search);
+            node[pos=0.1, left] {\texttt{l--}, \texttt{r++}} (search);
         \draw[->] (forward) .. controls +(up:3) and +(up:3) .. 
             node[pos=0.2, left] {Set Max Speed} (search);
     \end{tikzpicture}
-    \caption{Caption of the FSM}
-    \label{fig:my_label}
+    \caption{Phototaxis FSA}
+    \label{fig:photo-fsa}
 \end{figure}
 
+In order to make robot decisions more robust in presence of sensor noise, the
+actual max value of the sensor is determined with a weighted average based on
+neighbours. In fact, a high value on a sensor could likely mean high values on
+its neighbours. With this idea in mind, a function
+\texttt{neighbour\_weighted\_avg(idx, n, sensors)} is created as a utility
+function (which be later used by almost all lab activities). It takes as input
+a starting index (the sensor index we are currently considering), $n$
+representing the number of left and right neighbours to consider, and a set of
+sensors (e.g. proximity, light, ...).
+
 \subsection{Collision Avoidance with Random Walk}
+Starting from ideas illustrated in \Cref{ssec:phototaxis}, we define two major
+sub-behaviours: random walking and collision avoidance.
+
+\paragraph{Random Walk} this behaviour is implemented as illustrated by the
+Professor in his first example. We count each simulation step, and if we reach
+a certain number of steps, random left and right velocities are applied to
+wheels.
+
+\paragraph{Collision Avoidance} this behaviour is strongly inspired by
+phototaxis, meaning that we extract the maximum perceived value from proximity
+sensors, and if it is $>$ major than a threshold, an obstacle is detected. In
+order to get the maximum perceived value, we use the already defined
+\texttt{get\_max\_for\_sensor(idx, n, sensors)}. As a threshold, proximity
+sensors should be able to perceive up to 10cm. With experimental evaluation, a
+good threshold has been found at 0.55, letting the footbot avoid obstacles in a
+very smooth way while keeping a great security distance (much more important
+with movable obstacles like other robots). As per phototaxis, we then extract
+the angle of the sensor that has perceived the maximum value, making it
+possibile to understand if obstacle is detected on the left or right. If it is
+detected on the left ($\alpha > 0$), left wheel velocity should be set to
+maximum value, while setting to zero right wheel velocity, in order to make a
+turn which has as pivot the right wheel keeping turning radius as short as
+possibile. The opposite is applied if obstacle is detected on the right
+($\alpha < 0$).
+
+\bigskip
+\noindent
+Having defined the two separate behaviours, they are managed at each step in
+the following way: at each step, we call the \texttt{avoid\_obstacles()}
+function, which will return left and right wheel velocities if obstacles are
+detected, \texttt{nil} otherwise. If obstacle is detected, proposed left and
+right velocities are applied to wheels, ending current step, otherwise the
+random walk procedure is called, making it handle eventual right and left wheel
+velocities setting.
+
+\begin{figure}[ht]
+    \centering
+    \begin{tikzpicture}
+        \node[state, initial] (init) {Initialize};
+        \node[state, right=of init] (check) {Check Proximity};
+        \node[state, above right=of check] (avoid) {Avoid Obstacle};
+        \node[state, above=of avoid] (turnright) {Turn Right};
+        \node[state, below=of avoid] (turnleft) {Turn Left};
+        \node[state, below right=of check] (walk) {Random Walk};
+        \node[state, right=of walk] (update) {Update Step Count};
+        \node[state, below=of update] (newvelocity) {New Velocities};
+        
+        % Define transitions
+        \draw[->] (init) -- node[midway, above] {Random Velocities} (check);
+        
+        \draw[->] (check) -- node[midway, above] {Proximity $>$ Threshold} (avoid);
+        \draw[->] (check) -- node[midway, below] {Proximity $\leq$ Threshold} (walk);
+        
+        \draw[->] (avoid) -- node[midway, left] {Angle $>$ 0} (turnright);
+        \draw[->] (avoid) -- node[midway, left] {Angle $\leq$ 0} (turnleft);
+        
+        \draw[->] (turnright) .. controls +(right:3) and +(up:2) .. 
+            node[pos=0.3, right] {$v_l = MAX\_VELOCITY$, $v_r = 0$} (check);
+        \draw[->] (turnleft) .. controls +(right:3) and +(down:2) .. 
+            node[pos=0.3, right] {$v_l = 0$, $v_r = MAX\_VELOCITY$} (check);
+            
+        \draw[->] (walk) -- node[midway, right] {Increment Step Count} (update);
+        \draw[->] (update) -- node[midway, right] {Step Count \% MOVE\_STEPS $\neq$ 0} (check);
+        \draw[->] (update) -- node[midway, left] {Step Count \% MOVE\_STEPS = 0} (newvelocity);
+        \draw[->] (newvelocity) .. controls +(left:3) and +(down:2) .. 
+            node[pos=0.3, left] {Random $v_l$, Random $v_r$} (check);
+    \end{tikzpicture}
+    \caption{Random Walk with Collision Avoidance FSA}
+    \label{fig:randomwalk-collision-fsa}
+\end{figure}
