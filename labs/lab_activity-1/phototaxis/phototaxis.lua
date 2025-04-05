@@ -40,9 +40,6 @@ function follow_light()
 	end
 
 	if angle > 0 then
-		if r < MAX_VELOCITY then
-			r = r + DIRECTORION_CHANGE_FACTOR
-		end
 		r = math.min(r + DIRECTORION_CHANGE_FACTOR, MAX_VELOCITY)
 		l = math.min(l - DIRECTORION_CHANGE_FACTOR, 1)
 	else
