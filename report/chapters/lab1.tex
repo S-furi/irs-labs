@@ -113,39 +113,3 @@ detected, \texttt{nil} otherwise. If obstacle is detected, proposed left and
 right velocities are applied to wheels, ending current step, otherwise the
 random walk procedure is called, making it handle eventual right and left wheel
 velocities setting.
-
-\begin{figure}[ht]
-    \centering
-    \begin{tikzpicture}
-        \node[state, initial] (init) {Initialize};
-        \node[state, right=of init] (check) {Check Proximity};
-        \node[state, above right=of check] (avoid) {Avoid Obstacle};
-        \node[state, above=of avoid] (turnright) {Turn Right};
-        \node[state, below=of avoid] (turnleft) {Turn Left};
-        \node[state, below right=of check] (walk) {Random Walk};
-        \node[state, right=of walk] (update) {Update Step Count};
-        \node[state, below=of update] (newvelocity) {New Velocities};
-        
-        % Define transitions
-        \draw[->] (init) -- node[midway, above] {Random Velocities} (check);
-        
-        \draw[->] (check) -- node[midway, above] {Proximity $>$ Threshold} (avoid);
-        \draw[->] (check) -- node[midway, below] {Proximity $\leq$ Threshold} (walk);
-        
-        \draw[->] (avoid) -- node[midway, left] {Angle $>$ 0} (turnright);
-        \draw[->] (avoid) -- node[midway, left] {Angle $\leq$ 0} (turnleft);
-        
-        \draw[->] (turnright) .. controls +(right:3) and +(up:2) .. 
-            node[pos=0.3, right] {$v_l = MAX\_VELOCITY$, $v_r = 0$} (check);
-        \draw[->] (turnleft) .. controls +(right:3) and +(down:2) .. 
-            node[pos=0.3, right] {$v_l = 0$, $v_r = MAX\_VELOCITY$} (check);
-            
-        \draw[->] (walk) -- node[midway, right] {Increment Step Count} (update);
-        \draw[->] (update) -- node[midway, right] {Step Count \% MOVE\_STEPS $\neq$ 0} (check);
-        \draw[->] (update) -- node[midway, left] {Step Count \% MOVE\_STEPS = 0} (newvelocity);
-        \draw[->] (newvelocity) .. controls +(left:3) and +(down:2) .. 
-            node[pos=0.3, left] {Random $v_l$, Random $v_r$} (check);
-    \end{tikzpicture}
-    \caption{Random Walk with Collision Avoidance FSA}
-    \label{fig:randomwalk-collision-fsa}
-\end{figure}
