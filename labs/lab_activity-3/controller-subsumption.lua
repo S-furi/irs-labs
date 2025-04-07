@@ -151,6 +151,8 @@ function control_wheels(l, r)
 	if CONTROL_TAKEN then
 		return
 	end
+	l = math.min(config.MAX_WHEEL_VELOCITY, l)
+	r = math.min(config.MAX_WHEEL_VELOCITY, r)
 	robot.wheels.set_velocity(l, r)
 	CONTROL_TAKEN = true
 end
