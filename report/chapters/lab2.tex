@@ -1,2 +1,76 @@
 %!TEX root = ../main.tex
 \section{Lab Activity 2}
+The task goal is a composite behaviour from the behaviours developed in the
+previous lab (see \Cref{sec:lab01}). Some differences can be highlighted in
+terms of constraints: here, the robot:
+\begin{itemize}
+    \item must reach the light as fast as possibile;
+    \item once reached the light, it should stay close to it;
+    \item wheel velocities cannot exceed $15^{-2}m/s$.
+\end{itemize}
+For the second constraint, the implementation provided in the first lab
+activity already satisfies it. The robot goes towards the light, and when
+passing it, the highest intensity will be in back sensors, causing the robot to
+subsequently turn 180 degrees, repeating this process infinitely. When it comes
+to the third constraint, wheel velocities had already an upper bound in the
+previous implementation. Lastly, in order to satisfy the first constraint we
+need first to find a way to integrate the collision avoidance behaviour with
+phototaxis.
+
+\subsection{Behaviours Integration} In order to integrate behaviours, a sort of
+``prioritisation'' is needed, both for fusing and arbitration techniques. In
+order to keep the controller as simple as possibile, an arbitration behaviour
+coordination schema is implemented. In this case, at each step a behaviour
+among all possibile behaviours is selected. In this particular task, we
+prioritise collision avoidance with respect to phototaxis. We firstly check the
+presence of obstacles and if some are found, we steer the robot away from the
+obstacles. Otherwise, we keep following the light. In this way light reaching
+can be slowed down by the collision avoidance task, but for real world
+scenarios high prioritisation collision avoidance could be strongly desirable.
+
+\subsection{Behaviours Design} It is way more easier to design behaviours
+independently and separately instead of creating a composite behaviour from
+scratch. Even if composing behaviour could be challenging, we have various ways
+to archive this, for example by means of the subabsumption architecture,
+cooperative schemes, competitive schemes, etc. In this task's case in
+particular, having already defined behaviours in the previous lab activity made
+this one more focused on how to integrate them archive the desired behaviour
+with the given constraints.
+
+\subsubsection{Collision Avoidance}
+When it comes to the collision avoidance task, the same implementation is
+provided as the one for the first lab activity. Briefly: the robot retrieves
+the maximum proximity sensor's value through a neighbour-weighted average. If
+the maximum value is higher that a threshold (0.55), based on the angle of the
+sensor the robot steers left or right.
+
+When it comes to behaviours coordination, this behaviour could benefit a memory
+mechanism. In order to be more efficient for accomplishing task goals, instead
+of going the opposite way of the obstacle, the robot could choose a free
+direction that favours the task of phototaxis. This is especially true for all
+cases where there is the presence of tall obstacles that blocks the light
+source. If we can keep a reference to where the light was lastly located, we
+could prefer directions that helps the robot going towards the light faster
+when avoiding obstacles (or circumnavigating them).
+
+\subsubsection{Phototaxis}
+As per the collision avoidance behaviour, the phototaxis one is implemented as
+the previous lab activity but with some key difference in order to make the
+robot reach the light in the fastest way as possible, and in order to reduce
+the chances of collision when steering towards the light. Firstly, when
+detecting the light in front (i.e. max light value is detected from sensors 1
+or the $24^{th}$), we set wheel velocities to max speed in order to reach light
+faster. On the other hand, when light is detected on every other sensors, we
+perform a left or right steering keeping the opposite wheel velocity to the max
+value and the other to zero, reducing the turn radius with respect to the first
+lab activity implementation. In this way, we can reduce possibile impacts with
+obstacles when performing a turn in order to go towards the light.
+
+
+\subsection{Tests}
+The overall behaviour performs well even under challenging arena/robot
+configuration, for example having a noise of 0.05 on senors, having various
+kind of obstacles inside the arena, especially tall obstacles that blocks
+light. Other tests also involves more that one robot. In this case, robots
+successfully avoid collisions with themselves, and wander under the light oncIe
+reaching it, while avoiding collision with themselves.
