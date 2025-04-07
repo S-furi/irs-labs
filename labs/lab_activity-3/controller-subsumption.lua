@@ -108,7 +108,7 @@ function random_walk()
 		log("Random walking")
 		local left_v = robot.random.uniform(0, config.MAX_WHEEL_VELOCITY)
 		local right_v = robot.random.uniform(0, config.MAX_WHEEL_VELOCITY)
-		robot.wheels.set_velocity(left_v, right_v)
+		control_wheels(left_v, right_v)
 	end
 	CONTROL_TAKEN = true
 end
