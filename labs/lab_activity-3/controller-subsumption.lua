@@ -1,24 +1,10 @@
--- Define robot structure for suppressing LSP errors (ARGoS will provide the actual robot object)
----@diagnostic disable: undefined-global
-if false then -- This block is never executed at runtime
-	---@class Robot
-	robot = {
-		light = { [1] = { value = 0, angle = 0 }, velocity_right = 0, velocity_left = 0 }, -- 24
-		proximity = { [1] = { value = 0, angle = 0 } }, -- 24
-		motor_ground = { [1] = { value = 0, angle = 0 } }, -- NW, SW, SE, NE
-		wheels = { left = 0, right = 0 },
-		random = { uniform = 0 },
-	}
-end
----@diagnostic enable: undefined-global
-
 config = {
 	MAX_WHEEL_VELOCITY = 15,
 	MOVE_STEPS = 15,
 	NUM_EXTRA_FRONT_SENSORS = 2,
-	TURN_RATIO = 1,
+	TURN_RATIO = 3,
 	AVG_SENSORS = 3,
-	MIN_LIGHT_THRESHOLD = 0.05,
+	MIN_LIGHT_THRESHOLD = 0.0,
 	MIN_GROUND_THRESHOLD = 0.01,
 	PROX_THRESHOLD = 0.1,
 }
