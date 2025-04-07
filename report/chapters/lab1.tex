@@ -113,3 +113,13 @@ detected, \texttt{nil} otherwise. If obstacle is detected, proposed left and
 right velocities are applied to wheels, ending current step, otherwise the
 random walk procedure is called, making it handle eventual right and left wheel
 velocities setting.
+
+There are special cases where the robot get stuck, mainly in narrow spaces with
+two semi-parallel obstacles. In this case, steering all the way to left or
+right will lead to the other wall, which will cause to steer the opposite way.
+In this case the robot can get stuck between these walls, and this can be
+mitigated by many solutions, for example a memory mechanism that remembers the
+last direction change, in order to spot ``loops'' scenarios and get away narrow
+paths, or another solution can consist of, each time an obstacle is found,
+propose a set of free directions where no obstacles are detected, and pick one
+randomly. In this case, the robot will eventually escape narrow paths.
