@@ -1,2 +1,98 @@
 %!TEX root = ../main.tex
 \section{Lab Activity 4}
+This lab assignment requires the usage of a \textbf{motor schema} in order to
+implement a behaviour-based control for the task of phototaxis, while avoiding
+collisions with other objects. The constraints are about maximum wheels
+velocities ($15^{-2}m/s$) and that the robot must reach the light source as
+fast as possible.
+
+\section{Motor Schema Design}
+First thing first, we define the potential fields that characterise the environment:
+\begin{itemize}
+    \item An \emph{attractive} potential field is applied to the light source,
+        with a variation that resembles the concept of ``love'' for type three
+        Breitenberg vehicles. This enables the robot to slow down or even stop
+        when approaching the light source.
+    \item A \emph{repulsive} potential field for obstacles is applied, making
+        the robot steer harder away from the obstacle the closer it is.
+\end{itemize}
+
+When it comes to motor schemas, they can be summarised through \Cref{tab:ms-lab4}.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{@{}ll@{}}
+    \toprule
+    \textbf{Percept Source}   & \textbf{Perceptual Schema}                                                                                                                      \\ \midrule
+    Light sensors             & \begin{tabular}[c]{@{}l@{}}Phototaxis performed following  direction (angle) of \\ maximum sensor's value.\end{tabular}                         \\
+    Proximity sensors         & \begin{tabular}[c]{@{}l@{}}Collision avoidance performed taking the \\ opposite direction (angle) of the maximum sensor's\\ value.\end{tabular} \\
+    Light + Proximity sensors & \begin{tabular}[c]{@{}l@{}}If max light value and max proximity value are below\\ a given threshold, perform a random walk.\end{tabular}        \\ \bottomrule
+    \end{tabular}
+    \caption{Summary of sources and perception schemas for performing phototaxis with collision avoidance}
+    \label{tab:ms-lab4}
+\end{table}
+
+For each perceptual schema, we can define the following rules for generating
+the resulting vector:
+\begin{itemize}
+    \item \emph{Phototaxis}: \texttt{length} is equals to the maximum value detected
+        from sensors, while its \texttt{angle} is equals to the angle of the
+        sensor with maximum value.
+
+    \item \emph{Collision Avoidance}: \texttt{length} is equals to the maxim
+        value detected from sensors, while its \texttt{angle} is equals to the
+        opposite angle of the sensor with maximum value.
+
+    \item \emph{Random Walk}: \texttt{length} is equals to 0 when max light value
+        or max proximity value are above thresholds, a constant (0.2) otherwise.
+        The angle is randomly picked each $N$ steps.
+\end{itemize}
+
+After generating all vectors, they will be summed up creating a resulting vector
+which will be used to apply the corresponding velocities after its conversion
+to the differential steering model.
+
+With this approach we have several advantages including a substantial
+conciseness when writing the controller, and an overall simplicity when it
+comes to behaviours' resulting vectors merging. Challenges arises when having
+to produce such vectors. For this kind of task it has been quite
+straightforward to assign vector values with directly associating their length
+and angle to the sensors. In other scenarios, especially with heterogeneous
+sensor kinds and values representation, a Motor Schema architecture can lead to
+complexities that could go well beyond the single robot behaviour.
+
+Comparing with the subsumption architecture seen in \Cref{ssec:subsum}, we have
+two very distinct and somewhat opposite implementation strategies: with the
+subsumption architecture, the design phase is quite easy, but requires careful
+consideration in terms of layers interactions and inhibition of lower levels
+when taking control during the actual implementation of it. Quite the opposite
+happened in a motor schema architecture. The design phase is crucial and
+defining potential fields, perceptual schemas and their corresponding vector
+mapping is essential in order to have a correct behaviour, while the actual
+implementation is trivial. When comes to how well they behave in terms of
+\emph{extendibility}, I find the subsumption architecture more flexible. As
+said above, a possibile different sensor must be mapped in the common space
+defined for all other vectors, making this procedure sometimes challenging
+(just think about motor ground sensors that are less in number and yields sort
+of boolean values, very different from proximity or light sensors). This
+requires, in my opinion, a higher level of complexity when defining the
+perceptual schema, with respect to the addition of a new layer in a well
+structured subsumption architecture.
+
+A hybrid architecture could be developed picking the best from both
+architectures. In my experience, if we keep a subsumption architecture as
+simple as possibile, the resulting behaviour is less performing than the motor
+schema one. This happens because in the provided implementation of
+\Cref{ssec:subsum}, high level behaviours are excluding each other, meaning
+that when an obstacle is detected, no matter where the light is, the opposite
+direction is taken. This is not true for the MS architecture, while the
+contribution of the light (if visible) is still influencing the collision
+avoidance behaviour, without the need of additional code thanks to vector
+summing. With these consideration in mind, a subsumption architecture could be
+designed for all lower level capabilities and for higher level ones that
+requires to be exclusively performed (e.g. halting on black spot). For
+competing behaviours, we could design a layer (or more) taking advantage of the
+MS architecture.
+In this way we keep the modularity of the subsumption architecture, while
+keeping the effortless behaviour fusing capability provided by the MS
+architecture only in some specific layers that requires it.
