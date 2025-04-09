@@ -1,17 +1,3 @@
--- Define robot structure for suppressing LSP errors (ARGoS will provide the actual robot object)
----@diagnostic disable: undefined-global
-if false then -- This block is never executed at runtime
-	---@class Robot
-	robot = {
-		light = { [1] = { value = 0, angle = 0 }, velocity_right = 0, velocity_left = 0 }, -- 24
-		proximity = { [1] = { value = 0, angle = 0 } }, -- 24
-		motor_ground = { [1] = { value = 0, angle = 0 } }, -- NW, SW, SE, NE
-		wheels = { left = 0, right = 0 },
-		random = { uniform = 0 },
-	}
-end
----@diagnostic enable: undefined-global
-
 local vector = require("vector")
 local utils = require("utils")
 
@@ -100,7 +86,6 @@ function random_walk()
 	if (max_prox_val < config.MIN_PROX_THRESHOLD) and (max_light_val < config.MIN_LIGHT_THRESHOLD) then
 		local angle = 0
 		if STEP % config.RND_N_STEPS == 0 then
-			-- random angle
 			angle = robot.random.uniform(-math.pi / 2, math.pi / 2)
 		end
 		return { length = 0.2, angle = angle }
