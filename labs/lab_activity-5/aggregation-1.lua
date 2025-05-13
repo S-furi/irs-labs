@@ -25,13 +25,10 @@ states = {
 
 N_STEPS = 0
 CUR_STATE = states.STOPPED
-RESUME_STATE = states.WANDER_STRAIGHT
-CUR_L, CUR_R = 0, 0
 
 function reset_state()
 	N_STEPS = 0
 	CUR_STATE = states.STOPPED
-	CUR_L, CUR_R = 0, 0
 end
 
 function init() reset_state() end
