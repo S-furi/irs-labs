@@ -58,13 +58,13 @@ function step()
 	handle_state(CUR_STATE, is_changed)
 end
 
-function handle_state(state, init)
+function handle_state(state, is_initialised)
 	if state == states.STOPPED then
 		robot.wheels.set_velocity(0, 0)
 	elseif state == states.WANDER_STRAIGHT then
-		go_forward(init)
+		go_forward(is_initialised)
 	elseif state == states.WANDER_TURNING then
-		turn(init)
+		turn(is_initialised)
 	end
 end
 
@@ -116,14 +116,14 @@ function check_collisions()
 	return max_val >= config.PROX_THRESHOLD
 end
 
-function go_forward(init)
-	if init then
+function go_forward(is_initialised)
+	if is_initialised then
 		robot.wheels.set_velocity(config.DEFAULT_STRAIGHT_VELOCITY, config.DEFAULT_STRAIGHT_VELOCITY)
 	end
 end
 
-function turn(init)
-	if init then
+function turn(is_initialised)
+	if is_initialised then
 		local l, r = get_random_turning_velocities()
 		robot.wheels.set_velocity(l, r)
 	end
