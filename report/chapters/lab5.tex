@@ -1,0 +1,119 @@
+%!TEX root = ../main.tex
+\section{Lab Activity 5}
+
+In this lab activity on swarm robotics, it is required to implement a control
+program for aggregating a swarm of footbots in two distinct ways: the first
+requires to make robots aggregate through a simple formula, while the second is
+an enhancement of the first which takes into account aggregating on two black
+spots inside the arena.
+
+Both tasks can be summarised by means of a finite state automaton as shown in
+\Cref{fig:lab5-pfsa}. Initially all robots start in a stopped state, and at
+each simulation step, every robot
+\begin{enumerate*}[label=(\emph{\roman{*}})]
+    \item notifies its neighbours at a certain range about his state by means
+        of the bearing system,
+    \item computes its new state based on $P_S$ and $P_W$ and sets it as the
+        current state and finally
+    \item takes a corresponding action based on its current state.
+\end{enumerate*}
+%
+The \texttt{step} procedure inside the control program is encoded in such a way
+that the above three-step process is repeated over and over independently of
+which state the robot is currently at.
+
+When it comes to the random walk, in this case a bit cleverer approach has been
+adopted: the robot goes straight for a certain number of steps, and randomly
+selects a direction to turn. When the number of steps is reached and the
+direction is computed, the robot performs $n$ steps turning in the selected
+direction. On the $n$-th step, the robot restart to move forward. While the
+robot is performing these two simple tasks, it avoids collision with other
+robots, obstacles and walls. In \Cref{fig:lab5-pfsa} when the robot goes
+straight is represented as the \texttt{WANDER} state, and it transtion to the
+\texttt{TURN} state if a collision is detected or the number of wandering steps
+is reached (\texttt{thr\_w}), whereas in state \texttt{TURNING} the robot
+transition to state \texttt{WANDERING} after \texttt{thr\_t} steps. In both
+cases, they can transition to the \texttt{STOPPED} state with probability
+$P_S$.
+
+The logic for state transition is quite straightforward: if the robot is
+stopped, start walking based on computing $P_W$, stay stopped otherwise. If the
+robot is walking straight or turning, it can stop with probability $P_S$, or it
+can keep going with tasks of the corresponding state, and transition between
+them with the logic described above. For the three states, a visual indication
+has been provided by means of the robots LEDs: green when going straight, blue
+when avoiding collisions, yellow when turning while wandering and red when
+stopped.
+
+\begin{figure}[ht]
+    \centering
+    \begin{tikzpicture}
+          \node[state, node distance=5cm] (stopped) {STOPPED};
+          \node[state, node distance=5cm, right of=stopped] (wander) {WANDER};
+          \node[state, node distance=5cm, right of=wander] (turn) {TURN};
+
+          \draw[->] (stopped) -- node[above] {$p_w$} (wander);
+          \draw[->] (wander) to node[above] {collision} (turn);
+          \draw[->] (turn) to[bend left=30] node[below] {n\_steps = thr\_t} (wander);
+          \draw[->] (wander) to[bend right=45] node[below] {$p_s$} (stopped);
+          \draw[->] (turn) to[bend left=45] node[below] {$p_s$} (stopped);
+          \draw[->] (wander) to[bend left=30] node[above] {n\_steps = thr\_w} (turn);
+    \end{tikzpicture}
+    \caption{Aggregation task control program finite state automaton}
+    \label{fig:lab5-pfsa}
+\end{figure}
+
+\subsection{Task \#3}
+Regarding the third task, the majority of robots should eventually aggregate
+towards one single black spot, being the system essentially composed by two
+states, either the robot is on spot 1 or 2 or it is off black spots. For each
+robot in the latter state, the transitioning probability depends on the local
+neighbour density $N$ and the presence of the black spot below it. Thus if one
+black spot accidentally accumulates more robots early on (stochastic
+behaviour), its \emph{attractiveness} (positive feedback) increases by
+increasing $P_S$ and decreasing $P_W$. Being a stochastic system, there will be
+inevitable fluctuations and noise that can break a symmetric configuration
+where robots are equally distributed on spot 1, 2 and outside of them. This can
+further increase the probability that the majority of robots will eventually
+aggregate in a single black spot.
+
+We can formalise the evolution of the system over time considering $s_i(t)$
+with $i \in {1,2}$ as the number of robots in spot $i$ at time $t$, which is
+composed by the number of robots at time $t-1$, plus the number of robots
+joining the cluster on spot $i$ at $t-1$ and the robots that have left it at
+$t-1$. This evolution over time can be then expressed as:
+%
+\begin{equation}
+    s_i(t) = s_i(t-1) + J_i(t-1) - L_i(t-1)
+\end{equation}
+%
+where $J_i(t)$ indicates the number of robots joining the cluster above spot
+$i$ at time $t$ and $L_i(t)$ the number of robots that have left the cluster
+above spot $i$ at time $t$. Over time one of $s_i(t))$ will grow while the
+other will shrink.
+
+\subsection{Final Considerations}
+The observed behaviours for both implementation seem to be coherent with what
+has been expected. In the first case, robots aggregate in different sized
+clusters, and sometimes even aggregate in a single big cluster (experienced
+after 35k steps and above). The same is true for the second task, where
+eventually robots will be mostly aggregated above the black spot, but in both
+cases a fine tuning of the parameters has to be properly done. While the task
+description already included some very useful ranges of values, the model is
+very highly impacted by the values chosen for computing probabilities. This has
+been experienced especially in task number two where no ranges have been
+provided for $D_S$ and $D_W$, and testing by hand requires to precisely finding
+values in order to prefer stopping on the black spot, while permitting moving
+away from it when few robots are nearby.
+
+Overall, the usage of a collective choice lead to the implementation of complex
+behaviours by means of very simple and effective rules. This is also enhanced
+by the distributed nature of the control program which - in contrast to the
+centralised one - let us define a single simple robot behaviour in order to
+control the entire swarm. On the other hand, when the swarm does not behaviour
+as expected, it is hard to understand the underlying causes of potential
+errors. This is also true for parameter turning by hand, which requires a lot
+of trial and error and debugging in order to obtain an acceptable behaviour.
+Luckily, in this lab activity the given parameters ranges were already leading
+to an acceptable behaviour in the first iterations, so debugging was not a main
+concern.
