@@ -1,5 +1,6 @@
 local vector = require("vector")
 local utils = require("utils")
+local testing = require("testing")
 
 local config = {
 	MAX_WHEEL_VELOCITY = 15,
@@ -8,7 +9,7 @@ local config = {
 	TURN_RATIO = 1,
 	AVG_SENSORS = 3,
 	RND_N_STEPS = 5,
-	MIN_LIGHT_THRESHOLD = 0.05,
+	MIN_LIGHT_THRESHOLD = 0.01,
 	MIN_PROX_THRESHOLD = 0.05,
 	MIN_GROUND_THRESHOLD = 0.01,
 	PROX_THRESHOLD = 0.1,
@@ -18,8 +19,17 @@ local config = {
 
 STEP = 0
 
+local score = nil
+local min_distance = math.huge
+
 function init() end
-function reset() end
+
+function reset()
+	score = nil
+	min_distance = math.huge
+	testing.reset_steps()
+end
+
 function destroy() end
 
 function step()
@@ -34,10 +44,21 @@ function step()
 		acc = vector.vec2_polar_sum(acc, vec)
 	end
 
-	log("resulting vector: " .. acc.length .. ", " .. acc.angle)
+	-- log("resulting vector: " .. acc.length .. ", " .. acc.angle)
 	local l, r = vector.to_differential_steering(robot, acc)
 	robot.wheels.set_velocity(l, r)
-
+	
+	-- Testing
+	local curr_score, curr_distance = testing.test_light_proximity(robot, { x = 2, y = 0 })
+	if curr_score ~= nil and score == nil then
+		score = curr_score
+		log ("Robot reached light in " .. score .. " steps!")
+	else
+		if score == nil and min_distance > curr_distance then
+			min_distance = curr_distance
+			log("New min distance: " .. min_distance)
+		end
+	end
 end
 
 function phototaxis()

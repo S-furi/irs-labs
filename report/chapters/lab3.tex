@@ -18,39 +18,39 @@ behaviours.
 The \emph{competences} developed are the following (listed from lower to higher level):
 %
 \begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.6\textwidth]{figures/sub-arch.jpg}
-    \caption{The Subsumption Architecture for archiving phototaxis while
-        avoiding collisions and halting when under the light and over the black
-        spot.}
-    \label{fig:sub-arch}
+	\centering
+	\includegraphics[width=0.6\textwidth]{figures/sub-arch.jpg}
+	\caption{The Subsumption Architecture for archiving phototaxis while
+		avoiding collisions and halting when under the light and over the black
+		spot.}
+	\label{fig:sub-arch}
 \end{figure}
 %
 \begin{enumerate}
-    \item \emph{Control Wheels} lets the definition of the simplest behaviour
-        in order to control robot's wheels. It accepts a left and right
-        velocities and sets the wheel velocities accordingly. It also avoid
-        that the max speed of robot's wheels doesn't exceed $15^{-2}m/s$.
-    \item \emph{Go Forward} defines a simple competence for moving forward,
-        making use of its lower layer.
-    \item \emph{Turn} accepts a direction on which the robot should turn to.
-        Left or right turns are performed by multiplying current opposite wheel
-        velocity by a factor (\texttt{TURN\_RATIO=3}) and the other wheel velocity by zero.
-        This will let the robot to turn more gradually for finer turns.
-    \item \emph{Random Walk} this competence performs a sub-optimal random walk by changing
-        every $n$ steps robot wheels velocities randomly chosen.
-    \item \emph{Follow Light}: phototaxis implementation. It picks maximum
-        light value detected from sensors with the usual neighbour weighted
-        average, and chose the direction to turn to based on which sensor
-        yielded the maximum value.
-    \item \emph{Avoid Front Obstacles}: collision avoidance implementation,
-        with a difference that only front sensors are used for detecting
-        collisions. If obstacles are detected, the controller checks collision
-        for left, right and down, in this order. The first of these directions
-        that does not contain an obstacle is used to perform a turn.
-    \item \emph{Halt on Stop}: leveraging ground sensors, if any of those four
-        detects that the robot is on the black spot, wheel velocities are set
-        to zero.
+	\item \emph{Control Wheels} lets the definition of the simplest behaviour
+	      in order to control robot's wheels. It accepts a left and right
+	      velocities and sets the wheel velocities accordingly. It also avoid
+	      that the max speed of robot's wheels doesn't exceed $15^{-2}m/s$.
+	\item \emph{Go Forward} defines a simple competence for moving forward,
+	      making use of its lower layer.
+	\item \emph{Turn} accepts a direction on which the robot should turn to.
+	      Left or right turns are performed by multiplying current opposite wheel
+	      velocity by a factor (\texttt{TURN\_RATIO=3}) and the other wheel velocity by zero.
+	      This will let the robot to turn more gradually for finer turns.
+	\item \emph{Random Walk} this competence performs a sub-optimal random walk by changing
+	      every $n$ steps robot wheels velocities randomly chosen.
+	\item \emph{Follow Light}: phototaxis implementation. It picks maximum
+	      light value detected from sensors with the usual neighbour weighted
+	      average, and chose the direction to turn to based on which sensor
+	      yielded the maximum value.
+	\item \emph{Avoid Front Obstacles}: collision avoidance implementation,
+	      with a difference that only front sensors are used for detecting
+	      collisions. If obstacles are detected, the controller checks collision
+	      for left, right and down, in this order. The first of these directions
+	      that does not contain an obstacle is used to perform a turn.
+	\item \emph{Halt on Stop}: leveraging ground sensors, if any of those four
+	      detects that the robot is on the black spot, wheel velocities are set
+	      to zero.
 \end{enumerate}
 Having defined each layer and their dependencies, in order to keep the
 ``centralised'' piece of code as simple as possible, every layer makes use of a
@@ -72,7 +72,7 @@ With this approach, the control flow executes each layer in a top down fashion,
 from the higher level to the lowest, and thanks to the shared state there is no
 need of centralised coordination or inhibition by the main control flow.
 
-\subsection{Testing}
+\subsection{Testing}\label{ssec:sub-testing}
 In the following section there will be illustrated some testing results similar
 to what have been done in the \Cref{ssec:l2-test}.
 \Cref{tab:simulation-results-sub} summarise tests results. Except for some
@@ -91,24 +91,24 @@ collisions/potential collisions on left and right sides of the robot in order
 to avoid entering narrow paths.
 
 \begin{table}[ht]
-\centering
-\begin{tabular}{c|cc|cc|cc|cc}
-\textbf{Run} & \multicolumn{2}{c|}{\textbf{Arena 1} (631098)} & \multicolumn{2}{c|}{\textbf{Arena 2} (859511)} & \multicolumn{2}{c|}{\textbf{Arena 3} (446461)} & \multicolumn{2}{c}{\textbf{Arena 4} (969235)} \\
- & Score & Seed & Score & Seed & Score & Seed & Score & Seed \\
-\hline
-1 & 922 & 367625 & \textcolor{blue}{3.032} & 072013 & \textcolor{blue}{1.283} & 377973 & 870 & 382322 \\
-2 & 951 & 922560 & \textcolor{blue}{3.139} & 837462 & \textcolor{blue}{0.712} & 632701 & 860 & 265938 \\
-3 & 937 & 904607 & \textcolor{blue}{3.086} & 723220 & 827 & 998607 & \textcolor{blue}{2.128} & 183737 \\
-4 & 968 & 242114 & \textcolor{blue}{3.098} & 572212 & 891 & 748480 & 910 & 369984 \\
-5 & 970 & 388548 & \textcolor{blue}{4.180} & 661765 & 830 & 588261 & 883 & 808043 \\
-\end{tabular}
-\caption{Simulation results on 1000 steps runs: integer scores indicate then
-    number of steps in order to reach the light; floating-point scores (in
-    \textcolor{blue}{blue}) indicate that the footbot could not reach the light
-    in 1000 steps and records the minimum euclidean distance reached from the
-    light. In column header, inside parenthesis are contained random seeds
-    (argos) in order to produce the arena and robot placement. The seed column for
-    each run determines the random seed used in the control software (re-generated
-    at each reset).}
-\label{tab:simulation-results-sub}
+	\centering
+	\begin{tabular}{c|cc|cc|cc|cc}
+		\textbf{Run} & \multicolumn{2}{c|}{\textbf{Arena 1} (631098)} & \multicolumn{2}{c|}{\textbf{Arena 2} (859511)} & \multicolumn{2}{c|}{\textbf{Arena 3} (446461)} & \multicolumn{2}{c}{\textbf{Arena 4} (969235)}                                                                       \\
+		             & Score                                          & Seed                                           & Score                                          & Seed                                          & Score                   & Seed   & Score                   & Seed   \\
+		\hline
+		1            & 922                                            & 367625                                         & \textcolor{blue}{3.032}                        & 072013                                        & \textcolor{blue}{1.283} & 377973 & 870                     & 382322 \\
+		2            & 951                                            & 922560                                         & \textcolor{blue}{3.139}                        & 837462                                        & \textcolor{blue}{0.712} & 632701 & 860                     & 265938 \\
+		3            & 937                                            & 904607                                         & \textcolor{blue}{3.086}                        & 723220                                        & 827                     & 998607 & \textcolor{blue}{2.128} & 183737 \\
+		4            & 968                                            & 242114                                         & \textcolor{blue}{3.098}                        & 572212                                        & 891                     & 748480 & 910                     & 369984 \\
+		5            & 970                                            & 388548                                         & \textcolor{blue}{4.180}                        & 661765                                        & 830                     & 588261 & 883                     & 808043 \\
+	\end{tabular}
+	\caption{Simulation results on 1000 steps runs for the subsumption
+		architecture: integer scores indicate then number of steps in order to
+		reach the light; floating-point scores (in \textcolor{blue}{blue}) indicate
+		that the footbot could not reach the light in 1000 steps and records the
+		minimum euclidean distance reached from the light. In column header, inside
+		parenthesis are contained random seeds (argos) in order to produce the
+		arena and robot placement. The seed column for each run determines the
+		random seed used in the control software (re-generated at each reset).}
+	\label{tab:simulation-results-sub}
 \end{table}

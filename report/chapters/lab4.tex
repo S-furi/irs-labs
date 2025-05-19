@@ -9,43 +9,43 @@ fast as possible.
 \section{Motor Schema Design}
 First thing first, we define the potential fields that characterise the environment:
 \begin{itemize}
-    \item An \emph{attractive} potential field is applied to the light source,
-        with a variation that resembles the concept of ``love'' for type three
-        Breitenberg vehicles. This enables the robot to slow down or even stop
-        when approaching the light source.
-    \item A \emph{repulsive} potential field for obstacles is applied, making
-        the robot steer harder away from the obstacle the closer it is.
+	\item An \emph{attractive} potential field is applied to the light source,
+	      with a variation that resembles the concept of ``love'' for type three
+	      Breitenberg vehicles. This enables the robot to slow down or even stop
+	      when approaching the light source.
+	\item A \emph{repulsive} potential field for obstacles is applied, making
+	      the robot steer harder away from the obstacle the closer it is.
 \end{itemize}
 
 When it comes to motor schemas, they can be summarised through \Cref{tab:ms-lab4}.
 
 \begin{table}[ht]
-    \centering
-    \begin{tabular}{@{}ll@{}}
-    \toprule
-    \textbf{Percept Source}   & \textbf{Perceptual Schema}                                                                                                                      \\ \midrule
-    Light sensors             & \begin{tabular}[c]{@{}l@{}}Phototaxis performed following  direction (angle) of \\ maximum sensor's value.\end{tabular}                         \\
-    Proximity sensors         & \begin{tabular}[c]{@{}l@{}}Collision avoidance performed taking the \\ opposite direction (angle) of the maximum sensor's\\ value.\end{tabular} \\
-    Light + Proximity sensors & \begin{tabular}[c]{@{}l@{}}If max light value and max proximity value are below\\ a given threshold, perform a random walk.\end{tabular}        \\ \bottomrule
-    \end{tabular}
-    \caption{Summary of sources and perception schemas for performing phototaxis with collision avoidance}
-    \label{tab:ms-lab4}
+	\centering
+	\begin{tabular}{@{}ll@{}}
+		\toprule
+		\textbf{Percept Source}   & \textbf{Perceptual Schema}                                                                                                                      \\ \midrule
+		Light sensors             & \begin{tabular}[c]{@{}l@{}}Phototaxis performed following  direction (angle) of \\ maximum sensor's value.\end{tabular}                         \\
+		Proximity sensors         & \begin{tabular}[c]{@{}l@{}}Collision avoidance performed taking the \\ opposite direction (angle) of the maximum sensor's\\ value.\end{tabular} \\
+		Light + Proximity sensors & \begin{tabular}[c]{@{}l@{}}If max light value and max proximity value are below\\ a given threshold, perform a random walk.\end{tabular}        \\ \bottomrule
+	\end{tabular}
+	\caption{Summary of sources and perception schemas for performing phototaxis with collision avoidance}
+	\label{tab:ms-lab4}
 \end{table}
 
 For each perceptual schema, we can define the following rules for generating
 the resulting vector:
 \begin{itemize}
-    \item \emph{Phototaxis}: \texttt{length} is equals to the maximum value detected
-        from sensors, while its \texttt{angle} is equals to the angle of the
-        sensor with maximum value.
+	\item \emph{Phototaxis}: \texttt{length} is equals to the maximum value detected
+	      from sensors, while its \texttt{angle} is equals to the angle of the
+	      sensor with maximum value.
 
-    \item \emph{Collision Avoidance}: \texttt{length} is equals to the maxim
-        value detected from sensors, while its \texttt{angle} is equals to the
-        opposite angle of the sensor with maximum value.
+	\item \emph{Collision Avoidance}: \texttt{length} is equals to the maxim
+	      value detected from sensors, while its \texttt{angle} is equals to the
+	      opposite angle of the sensor with maximum value.
 
-    \item \emph{Random Walk}: \texttt{length} is equals to 0 when max light value
-        or max proximity value are above thresholds, a constant (0.2) otherwise.
-        The angle is randomly picked each $N$ steps.
+	\item \emph{Random Walk}: \texttt{length} is equals to 0 when max light value
+	      or max proximity value are above thresholds, a constant (0.2) otherwise.
+	      The angle is randomly picked each $N$ steps.
 \end{itemize}
 
 After generating all vectors, they will be summed up creating a resulting vector
@@ -96,3 +96,45 @@ MS architecture.
 In this way we keep the modularity of the subsumption architecture, while
 keeping the effortless behaviour fusing capability provided by the MS
 architecture only in some specific layers that requires it.
+
+\subsection{Testing}
+For testing, \Cref{ssec:sub-testing} subsumption architecture's test set has
+been used. While it is possibile to use the same arena random seed (so same
+walls and robot initial positioning), it was not possibile to reset the control
+software random seed by means of the simulator. Therefore in this test results
+shown in \Cref{tab:ms-results} only a single run is displayed.
+
+\begin{table}[ht]
+	\centering
+	\begin{tabular}{cccc}
+		\textbf{Arena 1} (631098) & \textbf{Arena 2} (859511) & \textbf{Arena 3} (446461) & \textbf{Arena 4} (969235) \\
+		\hline
+		\textcolor{blue}{4.163}   & \textcolor{blue}{0.284}   & 966                       & 805                       \\
+	\end{tabular}
+	\caption{Simulation results on 1000 steps runs for the motor schema
+		architecture: integer scores indicate then number of steps in order to
+		reach the light; floating-point scores (in \textcolor{blue}{blue})
+		indicate that the footbot could not reach the light in 1000 steps and
+		records the minimum euclidean distance reached from the light. In
+		column header, inside parenthesis are contained random seeds (argos) in
+		order to produce the arena and robot placement.}
+	\label{tab:ms-results}
+\end{table}
+
+The motor schema architecture is very sensitive to parameters tuning, and the
+tested configuration should not be to consider the optimal one. In fact,
+reaching light as fast as possibile is quite challenging to obtain due to the
+adjustments performed to the resulting vector. However, the obtained results
+can be considered acceptable, especially with respect to the subsumption
+architecture. Apart from the first arena, the motor schema architecture yields
+very positive results in all other three. When it comes to the actual number of
+steps that it takes for the footbot to reach the light, it easily predictable
+that it could be a bit higher due to the attractive field of the light: being
+the robot forced to stop under the light, the potential field of the light
+makes it slow down when in its proximity, meaning that even a hundred steps can
+pass for the robot to be precisely under the light and thus accomplishing it
+task: this explains the arena two results, if given a bit more steps the robot
+would have reached the light (recall the results of arena two for the
+subsumption architecture). However the overall behaviour of the motor schema
+architecture yielded better results and a good balance between sub-tasks than
+the subsumption architecture.
