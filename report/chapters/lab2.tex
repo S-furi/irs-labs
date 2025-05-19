@@ -72,5 +72,43 @@ The overall behaviour performs well even under challenging arena/robot
 configuration, for example having a noise of 0.05 on senors, having various
 kind of obstacles inside the arena, especially tall obstacles that blocks
 light. Other tests also involves more that one robot. In this case, robots
-successfully avoid collisions with themselves, and wander under the light oncIe
+successfully avoid collisions with themselves, and wander under the light once
 reaching it, while avoiding collision with themselves.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{c|cc|cc|cc|cc}
+\textbf{Run} & \multicolumn{2}{c|}{\textbf{Arena 1} (391787)} & \multicolumn{2}{c|}{\textbf{Arena 2} (46753)} & \multicolumn{2}{c|}{\textbf{Arena 3} (833139)} & \multicolumn{2}{c}{\textbf{Arena 4} (406338)} \\
+ & Score & Seed & Score & Seed & Score & Seed & Score & Seed \\
+\hline
+1 & 769 & 712659 & 817 & 525799 & 318 & 991166 & 564 & 733309 \\
+2 & 656 & 856089 & 774 & 579969 & 345 & 418680 & 496 & 033018 \\
+3 & 723 & 305032 & \textcolor{blue}{0.893} & 715223 & 321 & 483080 & \textcolor{blue}{2.094} & 986296 \\
+4 & 468 & 830554 & \textcolor{blue}{0.870} & 986128 & 296 & 525029 & 943 & 185796 \\
+5 & 310 & 227437 & \textcolor{blue}{1.653} & 237437 & 314 & 227003 & \textcolor{blue}{1.047} & 461587 \\
+\end{tabular}
+\caption{Simulation results on 1000 steps runs: integer scores indicate then
+    number of steps in order to reach the light; floating-point scores (in
+    \textcolor{blue}{blue}) indicate that the footbot could not reach the light
+    in 1000 steps and records the minimum euclidean distance reached from the
+    light. In column header, inside parenthesis are contained random seeds
+    (argos) in order to produce the arena and robot placement. The seed column for
+    each run determines the random seed used in the control software (re-generated
+    at each reset).}
+\label{tab:simulation-results}
+\end{table}
+
+In order to asses behaviour's quality, four experiments have been performed.
+For each experiment a sufficiently complex arena has been produced which
+contains six high walls (which block light) and a light placed in $(-1,0,0.5)$.
+For each random arena generated, five runs with different robot's random seed
+are performed, recording for each run the obtained \textbf{score}
+(\Cref{tab:simulation-results}), which is defined as follows: A simulation
+lasts 1000 time ticks. An integer is yielded if the robot could successfully
+reach the light. The integer represents the $i$-th step in which the robot
+reached the light. If the robot could not reach the light in 1000 steps, a
+floating point number is returned, indicating the minimum euclidean distance
+that the footbot has reached from the light in the whole run (so lower is
+better). The arena and simulation parameters (even noise) are left in the
+\texttt{lab02task1.argos} file.
+
