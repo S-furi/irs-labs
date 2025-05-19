@@ -71,3 +71,44 @@ atomic boolean).
 With this approach, the control flow executes each layer in a top down fashion,
 from the higher level to the lowest, and thanks to the shared state there is no
 need of centralised coordination or inhibition by the main control flow.
+
+\subsection{Testing}
+In the following section there will be illustrated some testing results similar
+to what have been done in the \Cref{ssec:l2-test}.
+\Cref{tab:simulation-results-sub} summarise tests results. Except for some
+outliers, the subsumption architecture seem to be very similar across different
+runs on the same arena rather than the control software developed for the lab
+activiry two. The main reason behind this is that the logic for collision
+avoidance for going always to the left influences a lot every simulation,
+especially for all those cases where the robot can see the light in a very low
+number of steps. When it comes to failures (cannot reach halting spot) in arena
+3 and 4, it is worth adding that the robot stuck in narrow block
+configurations: in fact, it does not detect any obstacles on front, it sees the
+light but cannot move due to walls collision on left and right. This is also
+the case for almost all runs (except the last one) of the arena 2. A better
+collision avoidance approach could be developed, which takes into account also
+collisions/potential collisions on left and right sides of the robot in order
+to avoid entering narrow paths.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{c|cc|cc|cc|cc}
+\textbf{Run} & \multicolumn{2}{c|}{\textbf{Arena 1} (631098)} & \multicolumn{2}{c|}{\textbf{Arena 2} (859511)} & \multicolumn{2}{c|}{\textbf{Arena 3} (446461)} & \multicolumn{2}{c}{\textbf{Arena 4} (969235)} \\
+ & Score & Seed & Score & Seed & Score & Seed & Score & Seed \\
+\hline
+1 & 922 & 367625 & \textcolor{blue}{3.032} & 072013 & \textcolor{blue}{1.283} & 377973 & 870 & 382322 \\
+2 & 951 & 922560 & \textcolor{blue}{3.139} & 837462 & \textcolor{blue}{0.712} & 632701 & 860 & 265938 \\
+3 & 937 & 904607 & \textcolor{blue}{3.086} & 723220 & 827 & 998607 & \textcolor{blue}{2.128} & 183737 \\
+4 & 968 & 242114 & \textcolor{blue}{3.098} & 572212 & 891 & 748480 & 910 & 369984 \\
+5 & 970 & 388548 & \textcolor{blue}{4.180} & 661765 & 830 & 588261 & 883 & 808043 \\
+\end{tabular}
+\caption{Simulation results on 1000 steps runs: integer scores indicate then
+    number of steps in order to reach the light; floating-point scores (in
+    \textcolor{blue}{blue}) indicate that the footbot could not reach the light
+    in 1000 steps and records the minimum euclidean distance reached from the
+    light. In column header, inside parenthesis are contained random seeds
+    (argos) in order to produce the arena and robot placement. The seed column for
+    each run determines the random seed used in the control software (re-generated
+    at each reset).}
+\label{tab:simulation-results-sub}
+\end{table}

@@ -9,11 +9,21 @@ config = {
 	PROX_THRESHOLD = 0.1,
 }
 
+local testing = require "testing"
+local score = nil
+local min_distance = math.huge
+
 CONTROL_TAKEN = false
 STEP = 0
 
 function init() end
-function reset() end
+
+function reset()
+	score = nil
+	min_distance = math.huge
+	testing.reset_steps()
+end
+
 function destroy() end
 
 function step()
@@ -21,12 +31,25 @@ function step()
 	CONTROL_TAKEN = false
 
 	halt_on_spot()
+	if CONTROL_TAKEN then
+		if score == nil then
+			score = testing.get_curr_step_n()
+		end
+		log("Robot reached the light at step " .. score .. " !")
+	end
 	avoid_front_obstacle()
 	follow_light()
 	random_walk()
 	turn("up")
 	go_forward()
 	control_wheels(config.MAX_WHEEL_VELOCITY, config.MAX_WHEEL_VELOCITY)
+
+	local _, curr_distance = testing.test_light_proximity(robot, { x = 2, y = 0 })
+
+	if min_distance > curr_distance then
+		min_distance = curr_distance
+		log("New minimum distance: " .. min_distance)
+	end
 end
 
 -- layer 6
